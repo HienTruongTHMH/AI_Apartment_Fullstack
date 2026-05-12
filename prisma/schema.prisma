@@ -1,0 +1,313 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client-js"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/**
+ * Các Enum
+ */
+
+enum Roles {
+  Viewer
+  Tenant
+  Owner
+}
+
+enum ApartmentStatus {
+  Rented
+  Available
+}
+
+enum PaymentStatus {
+  Pending
+  Paid
+  Faild
+}
+
+enum ApartmentAmenityStatus {
+  Working
+  Broken
+  Unavailable
+}
+
+enum AmenityCategory {
+  Furniture
+  Building
+  Policy
+}
+
+enum AmenityValue {
+  Boolean
+
+  Text
+}
+
+enum ListingStatus {
+  Draft
+
+  Published
+
+  Rented
+
+  HIDDEN
+}
+
+/**
+ * User
+ */
+
+model User {
+  id String @id @default(uuid())
+
+  name String
+
+  email String @unique
+
+  hashedPassword String
+
+  role Roles @default(Viewer)
+
+  phone String
+
+  // Các quan hệ
+
+  ownedApartments Apartment[] @relation("OwnerApartments")
+
+  contractsAsTenant Contract[] @relation("TenantContracts")
+
+  contractsAsOwner Contract[] @relation("OwnerContracts")
+
+  //Review về căn hộ
+
+  reviewGivenApartment ReviewApartment[] @relation("ApartmentReviewer")
+
+  //Reviews về người thuê
+
+  tenantReviewReceived ReviewTenant[] @relation("TenantReviewed")
+
+  //Reviews do chủ thuê viết
+
+  tenantReviewGiven ReviewTenant[] @relation("OwnerReviewer")
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Apartment {
+  id String @id @default(uuid())
+
+  floor Int
+
+  area Decimal @db.Decimal(6, 2)
+
+  apartmentStatus ApartmentStatus @default(Available)
+
+  ownerId String
+
+  owner User @relation("OwnerApartments", fields: [ownerId], references: [id])
+
+  //Các quan hệ
+
+  apartmentListing Listing?
+
+  apartmentAmenities ApartmentAmenity[]
+
+  contracts Contract[]
+
+  reviews ReviewApartment[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model ApartmentAmenity {
+  apartmentAmenityStatus ApartmentAmenityStatus @default(Unavailable)
+
+  apartmentId String
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id])
+
+  amenityId String
+
+  amenity Amenity @relation(fields: [amenityId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@id([amenityId, apartmentId])
+}
+
+model Amenity {
+  id String @id @default(uuid())
+
+  name String
+
+  category AmenityCategory
+
+  value AmenityValue
+
+  icon String
+
+  apartments ApartmentAmenity[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Contract {
+  id String @id @default(uuid())
+
+  startDate DateTime
+
+  endDate DateTime
+
+  apartmentId String
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id])
+
+  tenantId String
+
+  tenant User @relation("TenantContracts", fields: [tenantId], references: [id])
+
+  ownerId String
+
+  owner User @relation("OwnerContracts", fields: [ownerId], references: [id])
+
+  payments Payment[]
+
+  reviewApartment ReviewApartment[]
+
+  reviewTenant ReviewTenant[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([ownerId])
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  paymentDate DateTime @default(now())
+
+  amount Decimal @db.Decimal(12, 2)
+
+  status PaymentStatus @default(Pending)
+
+  contractId String
+
+  contract Contract @relation(fields: [contractId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Listing {
+  id String @id @default(uuid())
+
+  listingStatus ListingStatus @default(Draft)
+
+  title String
+
+  description String
+
+  pricePerMonth Decimal @db.Decimal(12, 2)
+
+  apartmentId String @unique
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id])
+
+  images ListingImages[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model ListingImages {
+  id String @id @default(uuid())
+
+  imageUrl String
+
+  isPrimary Boolean
+
+  listingId String
+
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+// Đảm bảo rằng, những ai có quan hệ HỢP ĐỒNG với nhau với được review nhau // tránh review ảo
+
+// Review: Người thuê -> Căn hộ
+
+//
+
+model ReviewApartment {
+  id String @id @default(uuid())
+
+  contractId String @unique
+
+  contract Contract @relation(fields: [contractId], references: [id])
+
+  apartmentId String
+
+  apartment Apartment @relation(fields: [apartmentId], references: [id])
+
+  reviewerId String
+
+  reviewer User @relation("ApartmentReviewer", fields: [reviewerId], references: [id])
+
+  review Json
+
+  comment String?
+
+  createdAt DateTime @default(now())
+}
+
+//
+
+// Review: Chủ thuê -> Người thuê
+
+//
+
+model ReviewTenant {
+  id String @id @default(uuid())
+
+  contractId String @unique
+
+  contract Contract @relation(fields: [contractId], references: [id])
+
+  tenantId String
+
+  tenant User @relation("TenantReviewed", fields: [tenantId], references: [id])
+
+  reviewerId String
+
+  reviewer User @relation("OwnerReviewer", fields: [reviewerId], references: [id])
+
+  review Json
+
+  comment String?
+
+  createdAt DateTime @default(now())
+}
