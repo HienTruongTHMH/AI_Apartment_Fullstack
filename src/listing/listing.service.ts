@@ -10,10 +10,30 @@ export class ListingService {
   constructor(private readonly prisma: PrismaService) { }
 
   create(createListingDto: CreateListingDto) {
-    return 'this create listing'
+    const {apartmentId, apartment, ...listData} = createListingDto;
+
+    if (apartmentId) {
+      return this.prisma.listing.create({
+        data: {
+          ...listData,
+          apartment: {
+            connect: {id: apartmentId}
+          }
+        }
+      });
+    } else if(apartment){
+      return this.prisma.listing.create({
+        data: {
+          ...listData,
+          apartment: {
+            create: apartment
+          }
+        }
+      })
+    }
   }
 
-  async findWithInfor(searchDto: SearchListingDto) {
+  async search(searchDto: SearchListingDto) {
     const { keyword, minPrice, maxPrice } = searchDto;
     const whereCondition: Prisma.ListingWhereInput = {};
 
@@ -60,19 +80,23 @@ export class ListingService {
     }))
   }
 
-  findAll() {
-    return `This action returns all listing`;
+  async findAll() {
+    return this.prisma.listing.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} listing`;
+  async findOne(id: string) {
+    return this.prisma.listing.findUnique({
+      where: {id},
+    });
   }
 
-  update(id: number, updateListingDto: UpdateListingDto) {
+  update(id: string, updateListingDto: UpdateListingDto) {
     return `This action updates a #${id} listing`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} listing`;
+  remove(id: string) {
+    return this.prisma.listing.delete({
+      where: {id}
+    });
   }
 }

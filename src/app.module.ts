@@ -6,9 +6,12 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { ListingModule } from './listing/listing.module';
 import { ApartmentModule } from './apartment/apartment.module';
+import { ContractModule } from './contract/contract.module';
+import { AmenityModule } from './amenity/amenity.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PrismaModule, ListingModule, ApartmentModule],
+  imports: [ConfigModule.forRoot(), PrismaModule, ListingModule, ApartmentModule, ContractModule, AmenityModule, UserModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

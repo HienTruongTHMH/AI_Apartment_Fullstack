@@ -1,18 +1,38 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Cấu hình cho API
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:8081'], // Các cổng được mở cho BE
-    methods: 'GET, HEAD, PUT, PATCH,  POST, DELETE',
-    credential: true, // Bật cho cookie/session
-  })
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:8081',
+    ],
+    methods: [
+      'GET',
+      'HEAD',
+      'PUT',
+      'PATCH',
+      'POST',
+      'DELETE',
+    ],
+    credentials: true,
+  });
 
-  // Thiết lập cổng: 
   app.setGlobalPrefix('api');
+  // Kiểm tra cục bộ
+  // Tụ động xoá file rác
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();

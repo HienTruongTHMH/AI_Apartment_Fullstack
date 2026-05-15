@@ -1,6 +1,32 @@
-import { ListingStatus } from "@prisma/client";
-import { IsString, IsNumber, IsEnum, IsNotEmpty, IsUUID } from "class-validator";
+import { ApartmentStatus, ApartmentTypes, ListingStatus } from "@prisma/client";
+import { Type } from "class-transformer";
+import { IsString, IsNumber, IsEnum, IsNotEmpty, IsUUID, IsInt, ValidateNested } from "class-validator";
 
+class ApartmentDto {
+    @IsUUID()
+    ownerId!: string
+
+    @IsInt()
+    floor!: number;
+
+    @IsNumber()
+    area!: number;
+
+    @IsEnum(ApartmentStatus)
+    apartmentStatus!: ApartmentStatus;
+
+    @IsNumber()
+    bedroom?: number;
+
+    @IsNumber()
+    livingroom?: number;
+
+    @IsNumber()
+    bathroom?: number
+
+    @IsEnum(ApartmentTypes)
+    apartmetType!:  ApartmentTypes
+}
 export class CreateListingDto {
     @IsString()
     @IsNotEmpty()
@@ -22,5 +48,9 @@ export class CreateListingDto {
 
     @IsUUID()
     @IsNotEmpty()
-    apartment!: string;
+    apartmentId!: string;
+
+    @ValidateNested()
+    @Type(() => ApartmentDto) 
+    apartment?: ApartmentDto
 }

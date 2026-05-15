@@ -19,22 +19,22 @@ export class ListingController {
   }
 
   @Get('search')
-  findWithInfor(@Query() searchDto: SearchListingDto) {
-    return this.listingService.findWithInfor(searchDto);
+  search(@Query() searchDto: SearchListingDto) {
+    return this.listingService.search(searchDto);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.listingService.findOne(+id);
+    return this.listingService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateListingDto: UpdateListingDto) {
-    return this.listingService.update(+id, updateListingDto);
+    return this.listingService.update(id, updateListingDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.listingService.remove(+id);
+    return this.listingService.remove(id);
   }
 }
