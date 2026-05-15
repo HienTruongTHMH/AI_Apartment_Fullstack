@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, ValidateNested, IsOptional, IsNumber, IsEnum, IsInt, IsUUID } from "class-validator";
 import { Type } from 'class-transformer';
-import { ApartmentStatus, ListingStatus } from "@prisma/client";
+import { ApartmentStatus, ApartmentTypes, ListingStatus } from "@prisma/client";
 
 class ListingOptionalDto {
     @IsString({message: "Title must use charater"})
@@ -30,11 +30,31 @@ export class CreateApartmentDto {
     @IsEnum(ApartmentStatus)
     apartmentStatus!: ApartmentStatus;
 
+    @IsEnum(ApartmentTypes)
+    type!: ApartmentTypes
+
+    @IsNumber()
+    bedroom!: number;
+
+    @IsNumber()
+    livingroom!: number
+    
+    @IsNumber()
+    bathroom!: number
+
+    @IsNumber()
+    kitchen!: number
+
+    @IsString()
+    district!: string;
+
+    @IsString()
+    fullAddress!: string;
+
     @IsUUID()
     @IsNotEmpty()
     ownerId!: string;
 
-    // Cho phép người dùng gửi kèm thông tin Listing nếu muốn tạo luôn
     @IsOptional()
     @ValidateNested()
     @Type(() => ListingOptionalDto)

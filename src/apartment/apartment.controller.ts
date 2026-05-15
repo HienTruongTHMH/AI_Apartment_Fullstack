@@ -8,7 +8,7 @@ export class ApartmentController {
   constructor(private readonly apartmentService: ApartmentService) {}
 
   @Post()
-  create(@Body(new ValidationPipe()) createApartmentDto: CreateApartmentDto) {
+  create(@Body() createApartmentDto: CreateApartmentDto) {
     return this.apartmentService.create(createApartmentDto);
   }
 
@@ -19,16 +19,16 @@ export class ApartmentController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.apartmentService.findOne(+id);
+    return this.apartmentService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateApartmentDto: UpdateApartmentDto) {
-    return this.apartmentService.update(+id, updateApartmentDto);
+  update(@Param('id') id: string, @Body(new ValidationPipe()) updateApartmentDto: UpdateApartmentDto) {
+    return this.apartmentService.update(id, updateApartmentDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.apartmentService.remove(+id);
+    return this.apartmentService.remove(id);
   }
 }
