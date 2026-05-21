@@ -9,9 +9,10 @@ import { ApartmentModule } from './apartment/apartment.module';
 import { ContractModule } from './contract/contract.module';
 import { AmenityModule } from './amenity/amenity.module';
 import { UserModule } from './user/user.module';
+import { AiAgentsModule } from './ai-agents/ai-agents.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), PrismaModule, ListingModule, ApartmentModule, ContractModule, AmenityModule, UserModule],
+  imports: [ConfigModule.forRoot(), PrismaModule, ListingModule, ApartmentModule, ContractModule, AmenityModule, UserModule, AiAgentsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

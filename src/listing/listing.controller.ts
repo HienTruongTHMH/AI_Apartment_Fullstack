@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Query, Req } from '@nestjs/common';
 import { ListingService } from './listing.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
@@ -13,9 +13,14 @@ export class ListingController {
     return this.listingService.create(createListingDto);
   }
 
+  @Post('/upload/get-presigned-url')
+  async getPresignedUrl(@Body() body: {fileName: string}) {
+    return this.listingService.getPresignedUrl(body);
+  }
+
   @Get()
-  findAll() {
-    return this.listingService.findAll();
+  findAll(@Query('ownerId') ownerId: string) {
+    return this.listingService.findAll(ownerId);
   }
 
   @Get('search')

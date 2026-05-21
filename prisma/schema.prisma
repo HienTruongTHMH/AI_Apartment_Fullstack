@@ -31,6 +31,8 @@ model Apartment {
   type               ApartmentTypes     @default(Normal)
   district           String             @default("Update_Later")             
   fullAddress        String             @default("Update_Later")  
+  room_number        Int                @default(1)
+  note               String             @default("Unknown")
   bedroom            Int                @db.Integer @default(1)
   livingroom         Int                @db.Integer @default(1)
   bathroom           Int                @db.Integer @default(1)

@@ -1,13 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { SearchListingDto } from './dto/search-listing.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { createClient } from '@supabase/supabase-js'
 
 @Injectable()
 export class ListingService {
   constructor(private readonly prisma: PrismaService) { }
+
+  private supabase = createClient(
+    process.env.SUPABASE_PUBLIC as string,
+    process.env.SUPABASE_SERVICE_KEY as string,
+  )
 
   create(createListingDto: CreateListingDto) {
     const {apartmentId, apartment, ...listData} = createListingDto;
@@ -80,8 +86,34 @@ export class ListingService {
     }))
   }
 
-  async findAll() {
-    return this.prisma.listing.findMany();
+  async getPresignedUrl(body: {fileName: string}){
+    const {fileName} = body;
+    const uniquePath = `listings/${Date.now()}-${fileName}`
+
+    const {data, error} = await this.supabase.storage.from('/uploads').createSignedUploadUrl(uniquePath)
+
+    if(error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return {
+      token: data.token,
+      path: data.path
+    }
+  }
+
+  async findAll(ownerId: string) {
+    return this.prisma.listing.findMany({
+      where: {
+        apartment: {
+          ownerId: ownerId,
+        },
+      },
+      include: {
+        apartment: true,
+        images: true, // === ListingImages: Galery
+      }
+    })
   }
 
   async findOne(id: string) {
