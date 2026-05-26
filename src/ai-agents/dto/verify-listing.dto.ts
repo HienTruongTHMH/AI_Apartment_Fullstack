@@ -1,6 +1,7 @@
 // verify-listing.dto.ts
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { Type } from "class-transformer";
+import { ApartmentTypes } from "@prisma/client";
 
 export class VerifyListingDto {
     @IsString()
@@ -11,7 +12,6 @@ export class VerifyListingDto {
     @IsNotEmpty({ message: 'Thiếu ID chủ nhà' })
     ownerId!: string;
 
-    // --- CÁC TRƯỜNG DỮ LIỆU TỪ FORM FRONTEND ---
     @IsString()
     @IsNotEmpty({ message: 'Tiêu đề không được để trống' })
     title!: string;
@@ -20,8 +20,9 @@ export class VerifyListingDto {
     @IsNotEmpty({ message: 'Mô tả không được để trống' })
     description!: string;
 
-    @IsString()
-    pricePerMonth!: string;
+    @IsNumber()
+    @Min(0, {message: "Vui lòng nhập số tiền cần thuê"})
+    pricePerMonth!: number;
 
     @IsString()
     room_number!: string;
@@ -58,8 +59,8 @@ export class VerifyListingDto {
     @Min(0)
     kitchen!: number;
 
-    @IsString()
-    type!: string;
+    @IsEnum(ApartmentTypes, {message: "Chọn các thuộc tính của căn hộ"})
+    type!: ApartmentTypes;
 
     // --- ẢNH GỬI LÊN ---
     @IsArray()

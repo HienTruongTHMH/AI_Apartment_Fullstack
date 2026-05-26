@@ -1,8 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateListingDto } from './create-listing.dto';
 
-import {ListingStatus } from "@prisma/client";
-import { IsString, IsNumber, IsEnum, IsNotEmpty, IsUUID} from "class-validator";
+import { ListingStatus } from "@prisma/client";
+import { IsString, IsNumber, IsEnum, IsNotEmpty, IsUUID, IsArray, IsOptional } from "class-validator";
 
 export class UpdateListingDto extends PartialType(CreateListingDto) {
     @IsString()
@@ -16,12 +16,14 @@ export class UpdateListingDto extends PartialType(CreateListingDto) {
     @IsNumber()
     @IsNotEmpty()
     pricePerMonth!: number;
-    
+
     @IsEnum(ListingStatus)
     listingStatus!: ListingStatus;
 
-    @IsString()
-    image! : string;
+    @IsArray()
+    @IsOptional()
+    @IsString({ each: true })
+    imageUrls?: string[];
 
     @IsUUID()
     @IsNotEmpty()

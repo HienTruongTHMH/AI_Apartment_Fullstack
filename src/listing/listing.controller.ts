@@ -9,7 +9,7 @@ export class ListingController {
   constructor(private readonly listingService: ListingService) { }
 
   @Post()
-  create(@Body(new ValidationPipe()) createListingDto: CreateListingDto) {
+  create(@Body() createListingDto: CreateListingDto) {
     return this.listingService.create(createListingDto);
   }
 
@@ -19,8 +19,8 @@ export class ListingController {
   }
 
   @Get()
-  findAll(@Query('ownerId') ownerId: string) {
-    return this.listingService.findAll(ownerId);
+  findAll() {
+    return this.listingService.findAll();
   }
 
   @Get('search')

@@ -102,23 +102,33 @@ export class ListingService {
     }
   }
 
-  async findAll(ownerId: string) {
+  async findAll() {
     return this.prisma.listing.findMany({
-      where: {
-        apartment: {
-          ownerId: ownerId,
-        },
-      },
+      where: { listingStatus: 'Published' }, // Chỉ lấy bài đã đăng
       include: {
+        images: true, // Join bảng lấy ảnh
         apartment: true,
-        images: true, // === ListingImages: Galery
       }
     })
   }
 
+  // async findAllByOwner(ownerId: string) {
+  //   return this.prisma.listing.findMany({
+  //     where: { listingStatus: 'Published' }, // Chỉ lấy bài đã đăng
+  //     include: {
+  //       images: true, // Join bảng lấy ảnh
+  //       apartment: true,
+  //     }
+  //   })
+  // }
+
   async findOne(id: string) {
     return this.prisma.listing.findUnique({
       where: {id},
+      include: {
+        apartment: true,
+        images: true
+      }
     });
   }
 
